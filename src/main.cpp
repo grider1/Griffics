@@ -48,8 +48,44 @@ void vecMultiply(vec3 &i, vec3 &o, matrix4x4 m) {
   }
 }
 
-void rotateMesh(mesh &imesh, mesh &omesh) {
+mesh transformMesh(mesh &imesh, matrix4x4 &transformMatrix) {
+  mesh transMesh;
+  for (int i = 0; i < imesh.tris.size(); i++) {
+    triangle transTri;
+    for (int j = 0; j < 3; j++) {
+      vec3 transVec3 = {0.0f, 0.0f, 0.0f};
+      vecMultiply(imesh.tris[i].p[j], transVec3, transformMatrix);
+      transTri.p[j] = transVec3;
+    }
+    transMesh.tris.push_back(transTri);
+  }
+  return transMesh;
+}
 
+mesh rotateMesh(mesh &imesh, float angle) {
+  matrix4x4 matRotZ, matRotX;
+  float fTheta = angle;
+
+  // Rotation Z
+  matRotZ.m[0][0] = cosf(fTheta);
+  matRotZ.m[0][1] = sinf(fTheta);
+  matRotZ.m[1][0] = -sinf(fTheta);
+  matRotZ.m[1][1] = cosf(fTheta);
+  matRotZ.m[2][2] = 1;
+  matRotZ.m[3][3] = 1;
+
+  // Rotation X
+  matRotX.m[0][0] = 1;
+  matRotX.m[1][1] = cosf(fTheta * 0.5f);
+  matRotX.m[1][2] = sinf(fTheta * 0.5f);
+  matRotX.m[2][1] = -sinf(fTheta * 0.5f);
+  matRotX.m[2][2] = cosf(fTheta * 0.5f);
+  matRotX.m[3][3] = 1; 
+  matrix4x4 matRot;
+  // Combine the rotation matrices
+
+  mesh xmesh = transformMesh(imesh, matRotX);
+  return transformMesh(xmesh, matRotX);
 }
 
 int main(int argc, const char * argv[]) {
@@ -85,7 +121,7 @@ int main(int argc, const char * argv[]) {
   matProj.m[3][3] = 0.0f;
 
   matrix4x4 matRotZ, matRotX;
-  float fTheta = 1.5f;
+  float fTheta = 1;
 
   // Rotation Z
   matRotZ.m[0][0] = cosf(fTheta);
@@ -101,7 +137,18 @@ int main(int argc, const char * argv[]) {
   matRotX.m[1][2] = sinf(fTheta * 0.5f);
   matRotX.m[2][1] = -sinf(fTheta * 0.5f);
   matRotX.m[2][2] = cosf(fTheta * 0.5f);
-  matRotX.m[3][3] = 1;
+  matRotX.m[3][3] = 1; 
+
+  for (int i = 0; i < meshCube.tris.size(); i++) {
+    triangle projTri;
+    for (int j = 0; j < 3; j++) {
+      vec3 transVec3 = meshCube.tris[i].p[j];
+      vec3 projVec3 = {0.0f, 0.0f, 0.0f};
+      vecMultiply(transVec3, projVec3, matProj);
+      projTri.p[j] = projVec3;
+    }
+    meshCube.tris[i] = projTri;
+  }
 
   for (int i = 0; i < meshCube.tris.size(); i++) {
     triangle projTri;
@@ -117,7 +164,7 @@ int main(int argc, const char * argv[]) {
     }
     drawTri(renderer, projTri);
   }
-
+  float count = 0.01f;
   SDL_RenderPresent(renderer); //render here
 
   SDL_Event e;
@@ -128,7 +175,55 @@ int main(int argc, const char * argv[]) {
               quit = true;
           }
           if (e.type == SDL_KEYDOWN){
-              SDL_RenderPresent(renderer);
+
+            SDL_SetRenderDrawColor(renderer,0,0,0,255);
+            SDL_RenderClear(renderer);
+            // Rotation Z
+            matRotZ.m[0][0] = cosf(count);
+            matRotZ.m[0][1] = sinf(count);
+            matRotZ.m[1][0] = -sinf(count);
+            matRotZ.m[1][1] = cosf(count);
+            matRotZ.m[2][2] = 1;
+            matRotZ.m[3][3] = 1;
+
+            // Rotation X
+            matRotX.m[0][0] = 1;
+            matRotX.m[1][1] = cosf(count * 0.5f);
+            matRotX.m[1][2] = sinf(count * 0.5f);
+            matRotX.m[2][1] = -sinf(count * 0.5f);
+            matRotX.m[2][2] = cosf(count * 0.5f);
+            matRotX.m[3][3] = 1; 
+
+             meshCube = makeCube();
+              for (int i = 0; i < meshCube.tris.size(); i++) {
+              triangle projTri;
+              for (int j = 0; j < 3; j++) {
+                vec3 transVec3 = meshCube.tris[i].p[j];
+                vec3 projVec3 = {0.0f, 0.0f, 0.0f};
+                vec3 finalVec3 = {0.0f, 0.0f, 0.0f};
+                vecMultiply(transVec3, projVec3, matRotZ);
+                vecMultiply(projVec3, finalVec3, matRotX);
+                projTri.p[j] = finalVec3;
+              }
+              meshCube.tris[i] = projTri;
+            }
+
+            for (int i = 0; i < meshCube.tris.size(); i++) {
+              triangle projTri;
+              for (int j = 0; j < 3; j++) {
+                vec3 transVec3 = meshCube.tris[i].p[j];
+                transVec3.z += 3.0f;
+                vec3 projVec3 = {0.0f, 0.0f, 0.0f};
+                vecMultiply(transVec3, projVec3, matProj);
+                projVec3.x += 1.0f; projVec3.y += 1.0f;
+                projVec3.x *= 0.5f * 2560.0f;
+                projVec3.y *= 0.5f * 1440.0f;
+                projTri.p[j] = projVec3;
+              }
+              drawTri(renderer, projTri);
+            }
+            SDL_RenderPresent(renderer); //render here
+            count += 0.1f;
           }
           if (e.type == SDL_MOUSEBUTTONDOWN){
               quit = true;
