@@ -33,3 +33,14 @@ void drawTri(SDL_Renderer* renderer, const triangle& tri) {
 
 }
 
+void drawMesh(SDL_Renderer* renderer, mesh &imesh) {
+  for (size_t i = 0; i < imesh.tris.size(); ++i) {
+    drawTri(renderer, imesh.tris[i]);
+  }
+}
+
+void drawScene(SDL_Renderer* renderer, std::vector<mesh> &scene) {
+  for (size_t i = 0; i < scene.size(); ++i) {
+    drawMesh(renderer, scene[i]);
+  }
+}
