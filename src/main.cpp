@@ -6,6 +6,36 @@
 #include "Matrix.h"
 #include "Draw.h"
 
+std::vector<mesh> createWorld() {
+  int Width = 2560;
+  int Height = 1440;
+
+  float fNear = 0.1f;
+  float fFar = 1000.0f;
+  float fFov = 90.0f;
+  float fAspectRatio = (float)Height / (float)Width;
+  float fFovRad = 1.0f / tanf(fFov * 0.5f / 180.0f * 3.14159f);
+  matrix4x4 matProj;
+  matProj.m[0][0] = fAspectRatio * fFovRad;
+  matProj.m[1][1] = fFovRad;
+  matProj.m[2][2] = fFar / (fFar - fNear);
+  matProj.m[3][2] = (-fFar * fNear) / (fFar - fNear);
+  matProj.m[2][3] = 1.0f;
+  matProj.m[3][3] = 0.0f;
+  std::vector<mesh> world = {};
+  int LENGTH = 10;
+  int WIDTH = 10;
+
+  for (int i = 0; i < 1; ++i) {
+    for (int j = 0; j < 1; ++j) {
+      mesh meshCube = cube();
+      offsetAndProjectMesh(meshCube, 0.0f, 0.0f, 3.0f, matProj);
+      world.push_back(meshCube);
+    }
+  }
+  return world;
+}
+
 int main(int argc, const char * argv[]) {
   
   // Create and initialize window
@@ -59,11 +89,23 @@ int main(int argc, const char * argv[]) {
   matRotX.m[3][3] = 1; 
 
   // Take in mesh and transform it into projected mesh. (screen space mesh)
-  offsetAndProjectMesh(meshCube, 3.0f, matProj);
-  std::vector<mesh> scene = {};
-  scene.push_back(meshCube);
+  //offsetAndProjectMesh(meshCube, 0.0f, 0.0f, 3.0f, matProj);
+  //std::vector<mesh> scene = {};
+  //scene.push_back(meshCube);
+
+  std::vector<mesh> world = {};
+  int LENGTH = 10;
+  int WIDTH = 10;
+
+  for (int i = 0; i < LENGTH; ++i) {
+    for (int j = 0; j < WIDTH; ++j) {
+      mesh meshCube = cube();
+      offsetAndProjectMesh(meshCube, j - 3.0f, 2.0f, i, matProj);
+      world.push_back(meshCube);
+    }
+  }
   //drawMesh(renderer, meshCube);
-  drawScene(renderer, scene);
+  drawScene(renderer, world);
 
   float count = 0.01f;
   SDL_RenderPresent(renderer); //render here

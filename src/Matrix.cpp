@@ -50,12 +50,14 @@ mesh rotateMesh(mesh &imesh, float angle) {
   return transformMesh(xmesh, matRotX);
 }
 
-void offsetAndProjectMesh(mesh &imesh, float zOffset, matrix4x4 projMatrix) {
+void offsetAndProjectMesh(mesh &imesh, float xOffset, float yOffset, float zOffset, matrix4x4 projMatrix) {
   // Take in mesh and transform it into projected mesh. (screen space mesh)
   for (int i = 0; i < imesh.tris.size(); i++) {
     triangle projTri;
     for (int j = 0; j < 3; j++) {
       vec3 transVec3 = imesh.tris[i].p[j];
+      transVec3.x += xOffset;
+      transVec3.y += yOffset;
       transVec3.z += zOffset;
       vec3 projVec3 = {0.0f, 0.0f, 0.0f};
       vecMultiply(transVec3, projVec3, projMatrix);
