@@ -15,4 +15,6 @@ struct mesh {
   std::vector<triangle> tris;
 };
 
+mesh cube();
+
 #endif

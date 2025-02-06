@@ -6,38 +6,6 @@
 #include "Matrix.h"
 #include "Draw.h"
 
-mesh makeCube() {
-  mesh meshCube;
-
-  meshCube.tris = {
-      // SOUTH
-      { { {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 0.0f} } },
-      { { {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f} } },
-
-      // EAST                                                      
-      { { {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f} } },
-      { { {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 1.0f} } },
-
-      // NORTH                                                     
-      { { {1.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 1.0f} } },
-      { { {1.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f} } },
-
-      // WEST                                                      
-      { { {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f} } },
-      { { {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f} } },
-
-      // TOP                                                       
-      { { {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f} } },
-      { { {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 0.0f} } },
-
-      // BOTTOM                                                    
-      { { {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f} } },
-      { { {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f} } }
-  };
-
-  return meshCube;
-}
-
 void vecMultiply(vec3 &i, vec3 &o, matrix4x4 m) {
   o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
   o.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
@@ -105,7 +73,7 @@ int main(int argc, const char * argv[]) {
   SDL_SetRenderDrawColor(renderer,0,0,0,255);
   SDL_RenderClear(renderer);
   
-  mesh meshCube = makeCube();
+  mesh meshCube = cube();
 
   float fNear = 0.1f;
   float fFar = 1000.0f;
@@ -194,7 +162,7 @@ int main(int argc, const char * argv[]) {
             matRotX.m[2][2] = cosf(count * 0.5f);
             matRotX.m[3][3] = 1; 
 
-             meshCube = makeCube();
+             meshCube = cube();
               for (int i = 0; i < meshCube.tris.size(); i++) {
               triangle projTri;
               for (int j = 0; j < 3; j++) {
